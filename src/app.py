@@ -1,3 +1,4 @@
+import flask
 import py_eureka_client.eureka_client as eureka_client
 
 eureka_client.init(eureka_server="http://localhost:8761/eureka",
@@ -10,6 +11,11 @@ try:
 except Exception:
     print("no cms service active")
 
-while True:
-    pass
+app = flask.Flask(__name__)
+app.config["DEBUG"] = True
 
+@app.route("/", methods=["GET"])
+def index():
+    return "ryver-recommendations service"
+
+app.run(host="0.0.0.0", port=8084)
