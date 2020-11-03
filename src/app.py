@@ -28,12 +28,23 @@ def get_recommendations(customer_id):
         auth = request.headers["Authorization"]
         if auth == None or not auth.startswith("Bearer"):
             return "Bearer token required for recommendations service"
-        res = eureka_client.do_service("ryver-cms", "/contents", headers=request.headers)
-        body = json.loads(res)
-        print("cms content:", body)
+        content = get_content(request.headers)
+        print("all viewable content:", content)
+        assets = get_assets(request.headers)
+        print("portfolio assets:", assets)
         return f"Customer {customer_id} asking for recommendations"
     except Exception:
         return "Getting recommendations failed", 500
+
+
+def get_content(headers):
+    res = eureka_client.do_service("ryver-cms", "/contents", headers=headers)
+    return json.loads(res)
+
+
+def get_assets(headers):
+    res = eureka_client.do_service("ryver-market", "/portfolio", headers=headers)
+    return json.loads(res)
 
 
 app.run(host="0.0.0.0", port=8084)
