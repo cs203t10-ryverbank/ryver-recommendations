@@ -49,12 +49,12 @@ def _load_fitted_lr_model(X_train, y_train):
     return lr.fit(cv.transform(X_train), y_train)
 
 
-def get_stocks_for_article(title, summary, content):
+def get_stocks_for_article(article):
     global cv
     global lr
     if cv is None or lr is None:
         return []
-    test = title + summary + content
+    test = article["title"] + article["summary"] + article["content"]
     X_final = np.array([test])
     X_probs = lr.predict_proba(cv.transform(X_final))
     return _get_stocks_for_probs(X_probs[0])

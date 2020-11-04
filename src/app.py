@@ -26,12 +26,19 @@ def get_recommendations(customer_id):
         if auth == None or not auth.startswith("Bearer"):
             return "Bearer token required for recommendations service"
 
-        for article in _get_articles(request.headers):
-            print(article["title"], article["summary"], article["content"])
-
         stocks_owned = _get_stocks_owned(request.headers)
+        articles = _get_articles(request.headers)
 
-        return f"Customer {customer_id} asking for recommendations"
+        zipped_article_relevant_stocks = [
+            (article, set(get_stocks_for_article(article))) for article in articles
+        ]
+
+        recommendations = [
+            pair[0] for pair in zipped_article_relevant_stocks
+            if not pair[1].isdisjoint(stocks_owned)
+        ]
+
+        return json.dumps(recommendations)
     except Exception as e:
         print(e)
         return "Getting recommendations failed", 500
