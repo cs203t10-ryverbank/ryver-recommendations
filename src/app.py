@@ -2,16 +2,13 @@ import flask
 from flask import request
 import json
 import py_eureka_client.eureka_client as eureka_client
+from ml import get_stocks_for_article
+
 
 eureka_client.init(eureka_server="http://localhost:8761/eureka",
-                   app_name="ryver-recommendations",
-                   instance_port=8084)
+                app_name="ryver-recommendations",
+                instance_port=8084)
 
-try:
-    res = eureka_client.do_service("ryver-cms", "/")
-    print(res, "is active")
-except Exception:
-    print("no cms service active")
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
@@ -28,21 +25,26 @@ def get_recommendations(customer_id):
         auth = request.headers["Authorization"]
         if auth == None or not auth.startswith("Bearer"):
             return "Bearer token required for recommendations service"
-        content = get_content(request.headers)
-        print("all viewable content:", content)
-        assets = get_assets(request.headers)
-        print("portfolio assets:", assets)
+
+        for article in _get_articles(request.headers):
+            print(article["title"], article["summary"], article["content"])
+
+        stocks_owned = set()
+        portfolio = _get_portfolio(request.headers)
+        for asset in portfolio["assets"]:
+            stocks_owned.add(asset["code"])
+
         return f"Customer {customer_id} asking for recommendations"
-    except Exception:
+    except Exception as e:
         return "Getting recommendations failed", 500
 
 
-def get_content(headers):
+def _get_articles(headers):
     res = eureka_client.do_service("ryver-cms", "/contents", headers=headers)
     return json.loads(res)
 
 
-def get_assets(headers):
+def _get_portfolio(headers):
     res = eureka_client.do_service("ryver-market", "/portfolio", headers=headers)
     return json.loads(res)
 
