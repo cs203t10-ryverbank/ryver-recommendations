@@ -29,19 +29,22 @@ def get_recommendations(customer_id):
         for article in _get_articles(request.headers):
             print(article["title"], article["summary"], article["content"])
 
-        stocks_owned = set()
-        portfolio = _get_portfolio(request.headers)
-        for asset in portfolio["assets"]:
-            stocks_owned.add(asset["code"])
+        stocks_owned = _get_stocks_owned(request.headers)
 
         return f"Customer {customer_id} asking for recommendations"
     except Exception as e:
+        print(e)
         return "Getting recommendations failed", 500
 
 
 def _get_articles(headers):
     res = eureka_client.do_service("ryver-cms", "/contents", headers=headers)
     return json.loads(res)
+
+
+def _get_stocks_owned(headers):
+    portfolio = _get_portfolio(headers)
+    return { asset["code"] for asset in portfolio["assets"] }
 
 
 def _get_portfolio(headers):
