@@ -15,12 +15,7 @@ app.config["DEBUG"] = True
 
 
 @app.route("/", methods=["GET"])
-def index():
-    return "ryver-recommendations service"
-
-
-@app.route("/<int:customer_id>", methods=["GET"])
-def get_recommendations(customer_id):
+def get_recommendations():
     try:
         auth = request.headers["Authorization"]
         if auth == None or not auth.startswith("Bearer"):
