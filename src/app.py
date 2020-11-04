@@ -6,8 +6,9 @@ from ml import get_stocks_for_article
 
 
 eureka_client.init(eureka_server="http://localhost:8761/eureka",
-                app_name="ryver-recommendations",
-                instance_port=8084)
+                   app_name="ryver-recommendations",
+                   instance_port=8084)
+
 
 
 app = flask.Flask(__name__)
